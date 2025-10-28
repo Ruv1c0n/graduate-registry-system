@@ -116,27 +116,32 @@
               <div class="text-h6">Действия</div>
             </q-card-section>
             <q-card-actions align="right">
-              <q-btn label="Редактировать" color="primary" icon="edit" @click="handleEdit" />
-              <q-btn label="Перевести в архив" color="grey" icon="archive" @click="handleArchive" />
+              <q-btn label="Редактировать" color="primary" icon="edit" @click="showEditForm = true"
+                :disable="student?.isArchived" />
+              <q-btn v-if="!student?.isArchived" label="Перевести в архив" color="grey" icon="archive"
+                @click="handleArchive" />
+              <q-btn v-else label="Вернуть из архива" color="positive" icon="unarchive" @click="handleUnarchive" />
             </q-card-actions>
           </q-card>
         </div>
       </div>
-    </div>
 
-    <!-- Состояние загрузки -->
-    <div v-else-if="loading" class="text-center q-pa-xl">
-      <q-spinner-gears size="50px" color="primary" />
-      <div class="q-mt-md">Загрузка данных студента...</div>
-    </div>
+      <!-- Состояние загрузки -->
+      <div v-else-if="loading" class="text-center q-pa-xl">
+        <q-spinner-gears size="50px" color="primary" />
+        <div class="q-mt-md">Загрузка данных студента...</div>
+      </div>
 
-    <!-- Состояние ошибки -->
-    <div v-else-if="error" class="text-center q-pa-xl">
-      <q-icon name="error" size="50px" color="negative" />
-      <div class="q-mt-md text-h6">Ошибка загрузки данных</div>
-      <div class="q-mt-sm text-grey">{{ error }}</div>
-      <q-btn label="Попробовать снова" color="primary" class="q-mt-md" @click="loadStudent" />
+      <!-- Состояние ошибки -->
+      <div v-else-if="error" class="text-center q-pa-xl">
+        <q-icon name="error" size="50px" color="negative" />
+        <div class="q-mt-md text-h6">Ошибка загрузки данных</div>
+        <div class="q-mt-sm text-grey">{{ error }}</div>
+        <q-btn label="Попробовать снова" color="primary" class="q-mt-md" @click="loadStudent" />
+      </div>
     </div>
+      <!-- Форма редактирования -->
+      <StudentForm v-model="showEditForm" :student="student" @submit="handleEditSubmit" />
   </q-page>
 </template>
 
@@ -144,15 +149,19 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStudentStore } from 'src/stores/student-store'
+import { useQuasar } from 'quasar'
+import StudentForm from 'src/components/student/StudentForm.vue'
 import type { Student } from 'src/types/students'
 
 const route = useRoute()
 const router = useRouter()
 const studentStore = useStudentStore()
+const $q = useQuasar()
 
 const student = ref<Student | null>(null)
 const loading = ref(false)
 const error = ref<string | null>(null)
+const showEditForm = ref(false)
 
 // Тестовые данные для учебных работ
 const studentWorks = computed(() => [
@@ -224,11 +233,101 @@ const getGradeColor = (grade: string) => {
 
 // Обработчики действий
 const handleEdit = () => {
-  console.log('Редактирование студента:', student.value?.id)
+  showEditForm.value = true
 }
 
+// Исправляем тип any
+interface StudentFormData {
+  id: string
+  fullName: string
+  admissionYear: number
+  graduationYear?: number
+  educationLevel: string
+  isSuccess: boolean
+  departmentId: number
+  isArchived: boolean
+}
+
+const handleEditSubmit = async (studentData: StudentFormData) => {
+  try {
+    if (student.value) {
+      await studentStore.updateStudent(student.value.id, studentData)
+      $q.notify({
+        type: 'positive',
+        message: 'Данные студента успешно обновлены'
+      })
+      await loadStudent() // Перезагружаем данные
+    }
+  } catch {
+    $q.notify({
+      type: 'negative',
+      message: 'Ошибка при обновлении данных студента'
+    })
+  }
+}
+
+// Создаем отдельные асинхронные функции для обработки архивов
+const archiveStudentHandler = async () => {
+  if (!student.value) return
+
+  try {
+    await studentStore.archiveStudent(student.value.id)
+    $q.notify({
+      type: 'positive',
+      message: 'Студент переведен в архив'
+    })
+    await loadStudent()
+  } catch {
+    $q.notify({
+      type: 'negative',
+      message: 'Ошибка при переводе в архив'
+    })
+  }
+}
+
+const unarchiveStudentHandler = async () => {
+  if (!student.value) return
+
+  try {
+    await studentStore.unarchiveStudent(student.value.id)
+    $q.notify({
+      type: 'positive',
+      message: 'Студент возвращен из архива'
+    })
+    await loadStudent()
+  } catch {
+    $q.notify({
+      type: 'negative',
+      message: 'Ошибка при возврате из архива'
+    })
+  }
+}
+
+// Синхронные обработчики для кнопок
 const handleArchive = () => {
-  console.log('Архивация студента:', student.value?.id)
+  if (!student.value) return
+
+  $q.dialog({
+    title: 'Подтверждение',
+    message: `Перевести студента ${student.value.fullName} в архив?`,
+    cancel: true,
+    persistent: true
+  }).onOk(() => {
+    void archiveStudentHandler() // Явно игнорируем Promise с void
+  })
+}
+
+const handleUnarchive = () => {
+  if (!student.value) return
+
+  $q.dialog({
+    title: 'Подтверждение',
+    message: `Вернуть студента ${student.value.fullName} из архива?`,
+    cancel: true,
+    persistent: true
+  }).onOk(() => {
+    void unarchiveStudentHandler() // Явно игнорируем Promise с void
+  })
 }
 
 // Загружаем данные при монтировании
@@ -236,7 +335,6 @@ onMounted(() => {
   void loadStudent()
 })
 </script>
-
 <style lang="scss" scoped>
 .student-detail {
   max-width: 1200px;

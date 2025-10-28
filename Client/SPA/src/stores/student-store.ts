@@ -59,6 +59,31 @@ export const useStudentStore = defineStore('students', () => {
     }
   ]
 
+
+  const mockDepartments = [
+    {
+      id: 1,
+      name: 'Программная инженерия',
+      headName: 'Иванов П.С.',
+      facultyId: 1,
+      facultyName: 'ФИиВТ'
+    },
+    {
+      id: 2,
+      name: 'Информатика и вычислительная техника',
+      headName: 'Петрова А.В.',
+      facultyId: 1,
+      facultyName: 'ФИиВТ'
+    },
+    {
+      id: 3,
+      name: 'Прикладная математика',
+      headName: 'Сидоров М.К.',
+      facultyId: 1,
+      facultyName: 'ФИиВТ'
+    }
+  ]
+
   const fetchStudents = async (params: StudentSearchParams = {}): Promise<void> => {
     console.log('fetchStudents called with params:', params)
     loading.value = true
@@ -72,6 +97,7 @@ export const useStudentStore = defineStore('students', () => {
       const filteredStudents = mockStudents.filter(student => {
         let match = true
 
+        // Поиск по тексту
         if (params.search) {
           const searchTerm = params.search.toLowerCase()
           match = match && (
@@ -80,14 +106,32 @@ export const useStudentStore = defineStore('students', () => {
           )
         }
 
+        // Фильтр по кафедре
         if (params.departmentId !== undefined) {
           match = match && student.departmentId === params.departmentId
         }
 
+        // Фильтр по ступени образования
         if (params.educationLevel) {
           match = match && student.educationLevel === params.educationLevel
         }
 
+        // Фильтр по году поступления (от)
+        if (params.admissionYearFrom !== undefined) {
+          match = match && student.admissionYear >= params.admissionYearFrom
+        }
+
+        // Фильтр по году поступления (до)
+        if (params.admissionYearTo !== undefined) {
+          match = match && student.admissionYear <= params.admissionYearTo
+        }
+
+        // Фильтр по успешности
+        if (params.isSuccess !== undefined) {
+          match = match && student.isSuccess === params.isSuccess
+        }
+
+        // Фильтр по архивности
         if (params.isArchived !== undefined) {
           match = match && student.isArchived === params.isArchived
         }
@@ -118,11 +162,83 @@ export const useStudentStore = defineStore('students', () => {
     }
   }
 
+  const generateStudentId = (): string => {
+    const lastId = Math.max(...mockStudents.map(s => {
+      const num = parseInt(s.id.replace('ST', ''))
+      return isNaN(num) ? 0 : num
+    }))
+    return `ST${String(lastId + 1).padStart(3, '0')}`
+  }
+
+  const createStudent = async (studentData: Omit<Student, 'id' | 'departmentName' | 'facultyName'>): Promise<Student> => {
+    try {
+      // TODO: Заменить на реальный API
+      await new Promise(resolve => setTimeout(resolve, 1000))
+
+      const department = mockDepartments.find(d => d.id === studentData.departmentId)
+      const newStudent: Student = {
+        ...studentData,
+        id: generateStudentId(), // Генерируем уникальный ID
+        departmentName: department?.name || 'Неизвестно',
+        facultyName: department?.facultyName || 'Неизвестно'
+      }
+
+      mockStudents.push(newStudent)
+      students.value = [...mockStudents] // Trigger reactivity
+
+      return newStudent
+    } catch (error) {
+      console.error('Failed to create student:', error)
+      throw error
+    }
+  }
+
+  const updateStudent = async (id: string, studentData: Partial<Omit<Student, 'id' | 'departmentName' | 'facultyName'>>): Promise<Student> => {
+    try {
+      // TODO: Заменить на реальный API
+      await new Promise(resolve => setTimeout(resolve, 1000))
+
+      const studentIndex = mockStudents.findIndex(s => s.id === id)
+      if (studentIndex === -1) {
+        throw new Error('Студент не найден')
+      }
+
+      const department = mockDepartments.find(d => d.id === (studentData.departmentId || mockStudents[studentIndex].departmentId))
+
+      mockStudents[studentIndex] = {
+        ...mockStudents[studentIndex],
+        ...studentData,
+        departmentName: department?.name || mockStudents[studentIndex].departmentName,
+        facultyName: department?.facultyName || mockStudents[studentIndex].facultyName
+      }
+
+      students.value = [...mockStudents] // Trigger reactivity
+
+      return mockStudents[studentIndex]
+    } catch (error) {
+      console.error('Failed to update student:', error)
+      throw error
+    }
+  }
+
+  const archiveStudent = async (id: string): Promise<Student> => {
+    return updateStudent(id, { isArchived: true })
+  }
+
+  const unarchiveStudent = async (id: string): Promise<Student> => {
+    return updateStudent(id, { isArchived: false })
+  }
+
+
   return {
     students,
     loading,
     searchParams,
     fetchStudents,
-    getStudentById
+    getStudentById,
+    createStudent,
+    updateStudent,
+    archiveStudent,
+    unarchiveStudent
   }
 })

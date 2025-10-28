@@ -15,7 +15,10 @@ export interface StudentSearchParams {
   search?: string | undefined;
   departmentId?: number | undefined;
   educationLevel?: string | undefined;
-  isArchived?: boolean | undefined;
+  admissionYearFrom?: number | undefined;
+  admissionYearTo?: number | undefined;
+  isSuccess?: boolean | undefined;
+  isArchived?: boolean | undefined; // undefined = все записи, false = только активные, true = только архивные
 }
 
 export interface Department {
