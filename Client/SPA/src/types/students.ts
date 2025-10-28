@@ -12,10 +12,10 @@ export interface Student {
 }
 
 export interface StudentSearchParams {
-  search?: string;
-  departmentId?: number;
-  educationLevel?: string;
-  isArchived?: boolean;
+  search?: string | undefined;
+  departmentId?: number | undefined;
+  educationLevel?: string | undefined;
+  isArchived?: boolean | undefined;
 }
 
 export interface Department {
