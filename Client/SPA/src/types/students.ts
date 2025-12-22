@@ -4,7 +4,7 @@ export interface Student {
   admissionYear: number;
   graduationYear?: number;
   educationLevel: string;
-  isSuccess: boolean;
+  educationStatus: string;
   departmentId: number;
   departmentName?: string;
   facultyName?: string;
@@ -15,9 +15,8 @@ export interface StudentSearchParams {
   search?: string | undefined;
   departmentId?: number | undefined;
   educationLevel?: string | undefined;
-  admissionYearFrom?: number | undefined;
-  admissionYearTo?: number | undefined;
-  isSuccess?: boolean | undefined;
+  admissionYear?: number | undefined;
+  educationStatus?: string | undefined;
   isArchived?: boolean | undefined; // undefined = все записи, false = только активные, true = только архивные
 }
 

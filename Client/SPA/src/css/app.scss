@@ -1,1 +1,33 @@
 // app global css in SCSS form
+.q-page {
+    background-color: $background-color;
+}
+
+.layout-header {
+    height: 80px;
+    font-size: xx-large;
+    background-color: $primary;
+    padding: 15px 20px;
+}
+
+.q-card {
+    background-color: $card-background;
+    border-color: $border-color;
+}
+
+.btn-add-student {
+    width: 245px;
+    height: 50px;
+    background-color: $accent;
+    border-radius: 16px;
+    -webkit-border-radius: 16px;
+    -moz-border-radius: 16px;
+    -ms-border-radius: 16px;
+    -o-border-radius: 16px;
+}
+
+.q-table__top,
+.q-table__bottom,
+thead tr:first-child th {
+  background-color: #F8FAFC
+}

@@ -1,7 +1,7 @@
 <template>
-  <div class="search-filters q-pa-md q-gutter-md">
+  <div class="search-filters q-pa-md">
     <!-- Основная строка поиска -->
-    <div class="row items-center q-gutter-md">
+    <div class="row items-center">
       <!-- Поле поиска -->
       <q-input v-model="localSearch" placeholder="Поиск по ФИО или номеру билета..." dense outlined clearable
         class="col-grow" @update:model-value="onSearchChange" @clear="onSearchClear">
@@ -17,28 +17,31 @@
     </div>
 
     <!-- Расширенные фильтры -->
-    <div v-if="showAdvancedFilters" class="advanced-filters row q-gutter-md">
+    <div v-if="showAdvancedFilters" class="advanced-filters row q-col-gutter-sm">
       <!-- Фильтр по кафедре -->
       <q-select v-model="localDepartmentId" :options="departmentOptions" option-value="id" option-label="name"
-        emit-value map-options label="Кафедра" dense outlined clearable class="col-12 col-sm-6 col-md-4"
+        emit-value map-options label="Кафедра" dense outlined class="col-12 col-sm-6 col-md-4"
         @update:model-value="onFiltersChange" />
 
       <!-- Фильтр по ступени образования -->
       <q-select v-model="localEducationLevel" :options="educationLevels" label="Ступень образования" dense outlined
-        clearable class="col-12 col-sm-6 col-md-4" @update:model-value="onFiltersChange" />
+        emit-value class="col-12 col-sm-6 col-md-4" @update:model-value="onFiltersChange" />
 
       <!-- Фильтр по статусу -->
-      <q-select v-model="localIsArchived" :options="statusOptions" label="Статус" dense outlined clearable
-        class="col-12 col-sm-6 col-md-4" @update:model-value="onFiltersChange" />
+      <q-select v-model="localIsArchived" :options="statusOptions" label="Статус" dense outlined emit-value
+        option-value="value" option-label="label" class="col-12 col-sm-6 col-md-4" @update:model-value="onFiltersChange" />
+
+      <q-select v-model="localEducationStatus" :options="educationStatus" label="Успешность" dense outlined emit-value
+        class="col-12 col-sm-6 col-md-4" @update:model-value="onFiltersChange"></q-select>
+
+      <q-select v-model="localAdmissionYear" :options="admissionYear" label="Год поступления" dense outlined emit-value
+        class="col-12 col-sm-6 col-md-4" @update:model-value="onFiltersChange"></q-select>
     </div>
 
     <!-- Сброс фильтров -->
     <div v-if="hasActiveFilters" class="row items-center q-mt-sm">
       <q-btn flat dense icon="clear_all" label="Сбросить фильтры" color="negative" @click="resetFilters" />
       <q-space />
-      <div class="text-caption text-grey">
-        Активные фильтры: {{ activeFiltersCount }}
-      </div>
     </div>
   </div>
 </template>
@@ -66,6 +69,8 @@ const localSearch = ref('')
 const localDepartmentId = ref<number | undefined>()
 const localEducationLevel = ref('')
 const localIsArchived = ref<boolean | undefined>()
+const localEducationStatus = ref<string | undefined>()
+const localAdmissionYear = ref<number | undefined>()
 const showAdvancedFilters = ref(false)
 
 // Опции для селектов
@@ -81,6 +86,15 @@ const statusOptions = [
   { label: 'Архивные', value: true }
 ]
 
+const educationStatus = [
+  { label: 'Закончил обучение', value: 'Закончил обучение' },
+  { label: 'В процессе обучения', value: 'В процессе обучения' },
+  { label: 'Отчислен', value: 'Отчислен' },
+  { label: 'В академ. отпуске', value: 'В академ. отпуске' }
+]
+
+const admissionYear = [2019, 2020, 2021, 2022, 2023, 2024, 2025]
+
 const departmentOptions = computed(() =>
   departmentStore.departments.map(dept => ({
     id: dept.id,
@@ -89,21 +103,16 @@ const departmentOptions = computed(() =>
 )
 
 // Вычисляемые свойства
-const hasActiveFilters = computed(() => {
-  return localSearch.value !== '' ||
+const hasActiveFilters = computed(() =>
+  Boolean(
+    localSearch.value ||
     localDepartmentId.value !== undefined ||
     localEducationLevel.value !== '' ||
-    localIsArchived.value !== undefined
-})
-
-const activeFiltersCount = computed(() => {
-  let count = 0
-  if (localSearch.value) count++
-  if (localDepartmentId.value !== undefined) count++
-  if (localEducationLevel.value) count++
-  if (localIsArchived.value !== undefined) count++
-  return count
-})
+    localIsArchived.value !== undefined ||
+    localEducationStatus.value ||
+    localAdmissionYear.value
+  )
+)
 
 // Методы
 const onSearchChange = (value: string | number | null) => {
@@ -125,6 +134,8 @@ const resetFilters = () => {
   localDepartmentId.value = undefined
   localEducationLevel.value = ''
   localIsArchived.value = undefined
+  localEducationStatus.value = undefined
+  localAdmissionYear.value = undefined
   emitSearchParams()
 }
 
@@ -133,13 +144,16 @@ const emitSearchParams = () => {
     search: localSearch.value || undefined,
     departmentId: localDepartmentId.value,
     educationLevel: localEducationLevel.value || undefined,
-    isArchived: localIsArchived.value
+    isArchived: localIsArchived.value === null ? undefined : localIsArchived.value,
+    educationStatus: localEducationStatus.value || undefined,
+    admissionYear: localAdmissionYear.value
   }
+
   emit('search', params)
 }
 
 // Дебаунс для поиска
-let searchTimeout: NodeJS.Timeout
+let searchTimeout: ReturnType<typeof setTimeout>
 const debouncedSearch = () => {
   clearTimeout(searchTimeout)
   searchTimeout = setTimeout(() => {
@@ -148,14 +162,24 @@ const debouncedSearch = () => {
 }
 
 // Инициализация из props
-watch(() => props.searchParams, (newParams) => {
-  if (newParams) {
-    localSearch.value = newParams.search || ''
-    localDepartmentId.value = newParams.departmentId
-    localEducationLevel.value = newParams.educationLevel || ''
-    localIsArchived.value = newParams.isArchived
-  }
-}, { immediate: true })
+watch(
+  () => props.searchParams,
+  (newParams) => {
+    if (newParams) {
+      localSearch.value = newParams.search || ''
+      localDepartmentId.value = newParams.departmentId
+      localEducationLevel.value = newParams.educationLevel || ''
+      localIsArchived.value = newParams.isArchived
+      localEducationStatus.value = newParams.educationStatus || ''
+      localAdmissionYear.value = newParams.admissionYear
+    }
+  },
+  { immediate: true }
+)
+
+watch(localIsArchived, (val) => {
+  console.log('localIsArchived:', val)
+})
 
 // Загружаем кафедры при монтировании
 onMounted(async () => {
@@ -169,13 +193,13 @@ onMounted(async () => {
 
 <style lang="scss" scoped>
 .search-filters {
-  background: #f8f9fa;
+  background: #ffffff;
   border-radius: 8px;
-  border: 1px solid #e9ecef;
+  border: 1px solid #E2E8F0;
 }
 
 .advanced-filters {
   border-top: 1px solid #e9ecef;
-  padding-top: 16px;
+  margin-top: 8px;
 }
 </style>

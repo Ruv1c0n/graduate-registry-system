@@ -11,47 +11,47 @@ export const useStudentStore = defineStore('students', () => {
   // Моки данных
   const mockStudents: Student[] = [
     {
-      id: 'ST001',
+      id: '1030044',
       fullName: 'Иванов Иван Иванович',
       admissionYear: 2020,
       graduationYear: 2024,
       educationLevel: 'Бакалавриат',
-      isSuccess: true,
+      educationStatus: "Закончил обучение",
       departmentId: 1,
       departmentName: 'Программная инженерия',
       facultyName: 'ФИиВТ',
       isArchived: true
     },
     {
-      id: 'ST002',
+      id: '1030045',
       fullName: 'Петрова Анна Сергеевна',
       admissionYear: 2021,
       graduationYear: 2025,
       educationLevel: 'Магистратура',
-      isSuccess: false,
+      educationStatus: 'Отчислен',
       departmentId: 2,
       departmentName: 'Информатика и вычислительная техника',
       facultyName: 'ФИиВТ',
       isArchived: false
     },
     {
-      id: 'ST003',
+      id: '1030046',
       fullName: 'Сидоров Михаил Алексеевич',
       admissionYear: 2019,
       graduationYear: 2023,
       educationLevel: 'Специалитет',
-      isSuccess: true,
+      educationStatus: 'В процессе обучения',
       departmentId: 1,
       departmentName: 'Программная инженерия',
       facultyName: 'ФИиВТ',
       isArchived: true
     },
     {
-      id: 'ST004',
+      id: '1030047',
       fullName: 'Козлова Елена Дмитриевна',
       admissionYear: 2022,
       educationLevel: 'Бакалавриат',
-      isSuccess: true,
+      educationStatus: 'В академ. отпуске',
       departmentId: 3,
       departmentName: 'Прикладная математика',
       facultyName: 'ФИиВТ',
@@ -116,19 +116,14 @@ export const useStudentStore = defineStore('students', () => {
           match = match && student.educationLevel === params.educationLevel
         }
 
-        // Фильтр по году поступления (от)
-        if (params.admissionYearFrom !== undefined) {
-          match = match && student.admissionYear >= params.admissionYearFrom
-        }
-
-        // Фильтр по году поступления (до)
-        if (params.admissionYearTo !== undefined) {
-          match = match && student.admissionYear <= params.admissionYearTo
+        // Фильтр по году поступления
+        if (params.admissionYear !== undefined) {
+          match = match && student.admissionYear == params.admissionYear
         }
 
         // Фильтр по успешности
-        if (params.isSuccess !== undefined) {
-          match = match && student.isSuccess === params.isSuccess
+        if (params.educationStatus !== undefined) {
+          match = match && student.educationStatus == params.educationStatus
         }
 
         // Фильтр по архивности

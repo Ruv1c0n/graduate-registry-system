@@ -1,38 +1,36 @@
 <template>
   <div>
     <!-- Временная отладочная информация -->
-    <div class="q-pa-md bg-yellow-2 text-grey-8">
+    <!-- <div class="q-pa-md bg-yellow-2 text-grey-8">
       <div class="text-caption">Отладка: {{ students.length }} студентов</div>
       <div v-for="student in students" :key="student.id" class="text-caption">
         {{ student.id }}: {{ student.fullName }}
       </div>
-    </div>
+    </div> -->
 
-    <q-table :rows="students" :columns="columns" :loading="loading" row-key="id" :pagination="pagination"
+    <q-table hide-pagination :rows="students" :columns="columns" :loading="loading" row-key="id" :pagination="pagination"
       @row-click="onRowClick" class="student-table q-mt-md" flat bordered>
-      <!-- Кастомный заголовок -->
-      <template #top>
-        <div class="row items-center full-width">
-          <div class="text-h6">Список студентов</div>
-          <q-space />
-          <div class="text-caption text-grey">
-            Всего: {{ students.length }} записей
-          </div>
-        </div>
-      </template>
 
       <!-- Кастомная ячейка для статуса архивности -->
       <template #body-cell-isArchived="props">
         <q-td :props="props">
-          <q-badge :color="props.value ? 'grey' : 'positive'" :label="props.value ? 'Архив' : 'Активен'" />
+          <q-badge
+          :style="{
+            backgroundColor: props.value ? '#F1F5F9' : '#DCFCE7',
+            color: props.value ? '#475569' : '#166534'
+          }"
+          :label="props.value ? 'Архив' : 'Активен'" />
         </q-td>
       </template>
 
       <!-- Кастомная ячейка для успешности обучения -->
-      <template #body-cell-isSuccess="props">
+      <template #body-cell-educationStatus="props">
         <q-td :props="props">
-          <q-icon :name="props.value ? 'check_circle' : 'cancel'" :color="props.value ? 'positive' : 'negative'"
-            size="1.5em" />
+          <q-icon
+          :name="getEducationStatusIcon(props.value)"
+          :color="getEducationStatusColor(props.value)"
+          size="1.5em"
+          />
         </q-td>
       </template>
 
@@ -78,6 +76,18 @@ const emit = defineEmits<{
   (e: 'view-student', student: Student): void
 }>()
 
+const getEducationStatusIcon = (status: string) => {
+  if (status === 'Закончил обучение') return 'check_circle'
+  if (status === 'Отчислен') return 'cancel'
+  return 'access_time' // остальные статусы
+}
+
+const getEducationStatusColor = (status: string) => {
+  if (status === 'Закончил обучение') return 'positive' // зеленый
+  if (status === 'Отчислен') return 'negative'        // красный
+  return 'warning'                                     // желтый
+}
+
 // Колонки таблицы - убедимся что field соответствует свойствам Student
 const columns: QTableProps['columns'] = [
   {
@@ -120,9 +130,9 @@ const columns: QTableProps['columns'] = [
     style: 'width: 150px;'
   },
   {
-    name: 'isSuccess',
+    name: 'educationStatus',
     label: 'Успешность',
-    field: 'isSuccess', // Должно совпадать с Student.isSuccess
+    field: 'educationStatus', // Должно совпадать с Student.isSuccess
     align: 'center',
     sortable: true,
     style: 'width: 120px;'
@@ -137,7 +147,7 @@ const columns: QTableProps['columns'] = [
   },
   {
     name: 'actions',
-    label: 'Действия',
+    label: '',
     field: '', // Пустое поле для колонки действий
     align: 'center',
     sortable: false,

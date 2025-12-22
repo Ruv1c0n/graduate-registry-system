@@ -1,14 +1,11 @@
 <template>
   <q-page class="q-pa-md">
-    <div class="row items-center q-mb-md">
-      <div class="col">
-        <div class="text-h4">Реестр студентов-выпускников</div>
-        <div class="text-subtitle1 text-grey-7">
-          Управление данными студентов-выпускников
-        </div>
+    <div class="page-header row items-center q-ma-md">
+      <div class="text-div col">
+        <div class="text-holder text-h5 text-weight-bold">Список студентов</div>
       </div>
-      <div class="col-auto">
-        <q-btn color="primary" icon="add" label="Добавить студента" @click="showCreateForm = true" />
+      <div class="btn-div col-auto">
+        <q-btn class="btn-add-student text-white" icon="add" label="Добавить студента" @click="showCreateForm = true"/>
       </div>
     </div>
 
