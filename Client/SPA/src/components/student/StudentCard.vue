@@ -124,7 +124,6 @@
 
       <!-- Кнопки -->
       <q-card-actions class="q-pa-md">
-        <!-- Кнопка архивации СЛЕВА (только в режиме просмотра и для существующего студента) -->
         <div v-if="!localEditMode" class="q-mr-md">
           <q-btn :label="formData.isArchived ? 'Разархивировать' : 'Архивировать'"
             :color="formData.isArchived ? 'positive' : 'grey-6'" unelevated @click="toggleArchive" />
@@ -132,7 +131,6 @@
 
         <q-space />
 
-        <!-- Остальные кнопки СПРАВА -->
         <div class="q-gutter-sm">
           <template v-if="!localEditMode">
             <q-btn label="Закрыть" flat @click="handleCancel" />
@@ -219,13 +217,12 @@ const formRef = ref()
 const submitting = ref(false)
 const localEditMode = ref(props.isEditMode)
 
-// Модальные окна для оценок
 const showCourseWorkGradeDialog = ref(false)
 const showDiplomaWorkGradeDialog = ref(false)
 const selectedCourseWorkGrade = ref('')
 const selectedDiplomaWorkGrade = ref('')
 
-// Данные формы - ВСЕ ПУСТЫЕ ПРИ СОЗДАНИИ НОВОГО СТУДЕНТА
+// Данные формы
 const formData = ref<StudentFormData>({
   id: '',
   fullName: '',
@@ -242,7 +239,7 @@ const formData = ref<StudentFormData>({
   diplomaWorkGrade: ''
 })
 
-// Оценки для курсовой (зачет/незачет)
+// Оценки для курсовой
 const courseWorkGrades = [
   { value: 'Зачтено', label: 'Зачтено', color: 'positive' },
   { value: 'Не зачтено', label: 'Не зачтено', color: 'negative' },
@@ -303,7 +300,6 @@ const diplomaWorkLabel = computed(() => {
   return formData.value.diplomaWorkGrade || 'Не оценено'
 })
 
-// Методы для цветов оценок
 const getCourseWorkColor = (grade: string | undefined) => {
   if (!grade) return 'grey-5'
   return grade === 'Зачтено' ? 'positive' : 'negative'
@@ -348,7 +344,6 @@ const initForm = () => {
   if (props.student && Object.keys(props.student).length > 0) {
     console.log('initForm: Student data received:', props.student)
 
-    // Берем только те поля, которые точно есть в моках
     formData.value = {
       id: props.student.id || '',
       fullName: props.student.fullName || '',
@@ -358,7 +353,6 @@ const initForm = () => {
       educationStatus: props.student.educationStatus || '',
       departmentId: props.student.departmentId || 0,
       isArchived: props.student.isArchived || false,
-      // Эти поля могут отсутствовать в моках, используем значения по умолчанию
       courseWorkTitle: '',
       courseWorkGrade: '',
       diplomaWorkTitle: '',
@@ -368,7 +362,6 @@ const initForm = () => {
     console.log('initForm: Form data initialized:', formData.value)
   } else {
     console.log('initForm: Creating new student (empty form)')
-    // Создание нового студента
     formData.value = {
       id: '',
       fullName: '',

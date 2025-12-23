@@ -1,15 +1,8 @@
 <template>
   <div>
-    <!-- Временная отладочная информация -->
-    <!-- <div class="q-pa-md bg-yellow-2 text-grey-8">
-      <div class="text-caption">Отладка: {{ students.length }} студентов</div>
-      <div v-for="student in students" :key="student.id" class="text-caption">
-        {{ student.id }}: {{ student.fullName }}
-      </div>
-    </div> -->
 
     <q-table hide-pagination :rows="students" :columns="columns" :loading="loading" row-key="id" :pagination="pagination"
-      @row-click="onRowClick" class="student-table q-mt-md" flat bordered>
+    class="student-table q-mt-md" flat bordered>
 
       <!-- Кастомная ячейка для статуса архивности -->
       <template #body-cell-isArchived="props">
@@ -72,7 +65,6 @@ interface Props {
 defineProps<Props>()
 
 const emit = defineEmits<{
-  (e: 'row-click', student: Student): void
   (e: 'view-student', student: Student): void
 }>()
 
@@ -83,17 +75,16 @@ const getEducationStatusIcon = (status: string) => {
 }
 
 const getEducationStatusColor = (status: string) => {
-  if (status === 'Закончил обучение') return 'positive' // зеленый
-  if (status === 'Отчислен') return 'negative'        // красный
-  return 'warning'                                     // желтый
+  if (status === 'Закончил обучение') return 'positive'
+  if (status === 'Отчислен') return 'negative'
+  return 'warning'
 }
 
-// Колонки таблицы - убедимся что field соответствует свойствам Student
 const columns: QTableProps['columns'] = [
   {
     name: 'fullName',
     label: 'ФИО',
-    field: 'fullName', // Должно совпадать с Student.fullName
+    field: 'fullName',
     align: 'left',
     sortable: true,
     classes: 'text-weight-medium'
@@ -101,7 +92,7 @@ const columns: QTableProps['columns'] = [
   {
     name: 'id',
     label: 'Номер билета',
-    field: 'id', // Должно совпадать с Student.id
+    field: 'id',
     align: 'left',
     sortable: true,
     style: 'width: 150px;'
@@ -109,7 +100,7 @@ const columns: QTableProps['columns'] = [
   {
     name: 'educationLevel',
     label: 'Ступень образования',
-    field: 'educationLevel', // Должно совпадать с Student.educationLevel
+    field: 'educationLevel',
     align: 'center',
     sortable: true,
     style: 'width: 180px;'
@@ -117,14 +108,14 @@ const columns: QTableProps['columns'] = [
   {
     name: 'departmentName',
     label: 'Кафедра',
-    field: 'departmentName', // Должно совпадать с Student.departmentName
+    field: 'departmentName',
     align: 'left',
     sortable: true
   },
   {
     name: 'admissionYear',
     label: 'Год поступления',
-    field: 'admissionYear', // Должно совпадать с Student.admissionYear
+    field: 'admissionYear',
     align: 'center',
     sortable: true,
     style: 'width: 150px;'
@@ -132,7 +123,7 @@ const columns: QTableProps['columns'] = [
   {
     name: 'educationStatus',
     label: 'Успешность',
-    field: 'educationStatus', // Должно совпадать с Student.isSuccess
+    field: 'educationStatus',
     align: 'center',
     sortable: true,
     style: 'width: 120px;'
@@ -140,7 +131,7 @@ const columns: QTableProps['columns'] = [
   {
     name: 'isArchived',
     label: 'Статус',
-    field: 'isArchived', // Должно совпадать с Student.isArchived
+    field: 'isArchived',
     align: 'center',
     sortable: true,
     style: 'width: 100px;'
@@ -148,14 +139,13 @@ const columns: QTableProps['columns'] = [
   {
     name: 'actions',
     label: '',
-    field: '', // Пустое поле для колонки действий
+    field: '',
     align: 'center',
     sortable: false,
     style: 'width: 80px;'
   }
 ]
 
-// Пагинация
 const pagination = {
   sortBy: 'fullName' as const,
   descending: false,
@@ -163,15 +153,10 @@ const pagination = {
   rowsPerPage: 25
 }
 
-// Обработчики событий
-const onRowClick = (evt: Event, row: Student) => {
-  emit('row-click', row)
-}
 
 const onViewStudent = (student: Student) => {
   console.log('Table: View student clicked', student)
 
-  // Проверяем, что student содержит данные
   if (!student || Object.keys(student).length === 0) {
     console.error('Student object is empty!')
     return

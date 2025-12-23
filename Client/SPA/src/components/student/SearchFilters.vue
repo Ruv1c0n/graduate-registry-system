@@ -3,15 +3,22 @@
     <!-- Основная строка поиска -->
     <div class="row items-center">
       <!-- Поле поиска -->
-      <q-input v-model="localSearch" placeholder="Поиск по ФИО или номеру билета..." dense outlined clearable
-        class="col-grow" @update:model-value="onSearchChange" @clear="onSearchClear">
+      <q-input
+        v-model="localSearch"
+        placeholder="Поиск по ФИО или номеру билета..."
+        dense outlined clearable
+        class="col-grow"
+        @update:model-value="onSearchChange"
+        @clear="onSearchClear">
         <template #prepend>
           <q-icon name="search" />
         </template>
       </q-input>
 
       <!-- Кнопка расширенных фильтров -->
-      <q-btn flat :icon="showAdvancedFilters ? 'expand_less' : 'expand_more'"
+      <q-btn
+        flat
+        :icon="showAdvancedFilters ? 'expand_less' : 'expand_more'"
         :label="showAdvancedFilters ? 'Скрыть фильтры' : 'Фильтры'"
         @click="showAdvancedFilters = !showAdvancedFilters" />
     </div>
@@ -19,28 +26,62 @@
     <!-- Расширенные фильтры -->
     <div v-if="showAdvancedFilters" class="advanced-filters row q-col-gutter-sm">
       <!-- Фильтр по кафедре -->
-      <q-select v-model="localDepartmentId" :options="departmentOptions" option-value="id" option-label="name"
-        emit-value map-options label="Кафедра" dense outlined class="col-12 col-sm-6 col-md-4"
+      <q-select
+        v-model="localDepartmentId"
+        :options="departmentOptions"
+        option-value="id"
+        option-label="name"
+        emit-value map-options
+        label="Кафедра"
+        dense outlined
+        class="col-12 col-sm-6 col-md-4"
         @update:model-value="onFiltersChange" />
 
       <!-- Фильтр по ступени образования -->
-      <q-select v-model="localEducationLevel" :options="educationLevels" label="Ступень образования" dense outlined
-        emit-value class="col-12 col-sm-6 col-md-4" @update:model-value="onFiltersChange" />
+      <q-select
+        v-model="localEducationLevel"
+        :options="educationLevels"
+        label="Ступень образования"
+        dense outlined emit-value
+        class="col-12 col-sm-6 col-md-4"
+        @update:model-value="onFiltersChange" />
 
       <!-- Фильтр по статусу -->
-      <q-select v-model="localIsArchived" :options="statusOptions" label="Статус" dense outlined emit-value
-        option-value="value" option-label="label" class="col-12 col-sm-6 col-md-4" @update:model-value="onFiltersChange" />
+      <q-select
+        v-model="localIsArchived"
+        :options="statusOptions"
+        label="Статус"
+        dense outlined emit-value
+        option-value="value"
+        option-label="label"
+        class="col-12 col-sm-6 col-md-4"
+        @update:model-value="onFiltersChange" />
 
-      <q-select v-model="localEducationStatus" :options="educationStatus" label="Успешность" dense outlined emit-value
-        class="col-12 col-sm-6 col-md-4" @update:model-value="onFiltersChange"></q-select>
+      <q-select
+        v-model="localEducationStatus"
+        :options="educationStatus"
+        label="Успешность"
+        dense outlined emit-value
+        class="col-12 col-sm-6 col-md-4"
+        @update:model-value="onFiltersChange"/>
 
-      <q-select v-model="localAdmissionYear" :options="admissionYear" label="Год поступления" dense outlined emit-value
-        class="col-12 col-sm-6 col-md-4" @update:model-value="onFiltersChange"></q-select>
+      <q-select
+        v-model="localAdmissionYear"
+        :options="admissionYear"
+        label="Год поступления"
+        dense outlined emit-value
+        class="col-12 col-sm-6 col-md-4"
+        @update:model-value="onFiltersChange"/>
     </div>
 
     <!-- Сброс фильтров -->
     <div v-if="hasActiveFilters" class="row items-center q-mt-sm">
-      <q-btn flat dense icon="clear_all" label="Сбросить фильтры" color="negative" @click="resetFilters" />
+      <q-btn
+        flat dense
+        icon="clear_all"
+        label="Сбросить фильтры"
+        color="negative"
+        @click="resetFilters" />
       <q-space />
     </div>
   </div>

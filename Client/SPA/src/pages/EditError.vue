@@ -2,17 +2,14 @@
   <q-page class="flex flex-center bg-white">
     <q-card class="figma-card" flat>
       <q-card-section class="figma-section">
-        <!-- Заголовок -->
         <div class="figma-title-container">
           <div class="figma-title">⚠️ Ошибка сохранения</div>
         </div>
 
-        <!-- Основное сообщение -->
         <div class="figma-main-message q-mb-lg">
           Не удалось создать запись. Пожалуйста, исправьте ошибки в полях ниже и попробуйте снова.
         </div>
 
-        <!-- Поле с ошибкой -->
         <div class="field-error-section q-mb-lg">
           <div class="field-label">Номер студенческого билета</div>
           <div class="field-value-display">1030044</div>
@@ -21,7 +18,6 @@
           </div>
         </div>
 
-        <!-- Кнопки -->
         <div class="buttons-container">
           <q-btn flat class="cancel-button" @click="goBack">
             Отмена

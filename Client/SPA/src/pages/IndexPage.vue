@@ -63,11 +63,6 @@ const handleSearch = async (params: StudentSearchParams) => {
   }
 }
 
-const handleRowClick = (student: Student) => {
-  // Можно добавить навигацию или другую логику
-  console.log('Выбран студент:', student)
-}
-
 const handleShowStudentCard = (student: Student) => {
     console.log('handleShowStudentCard called with:', student)
     selectedStudent.value = {
@@ -81,18 +76,16 @@ const handleShowStudentCard = (student: Student) => {
     isArchived: student.isArchived || false,
     facultyName: student.facultyName || '',
   }
-  isEditMode.value = false // Режим просмотра
+  isEditMode.value = false
   showStudentCard.value = true
 }
 
-// Обработчик для кнопки "Добавить студента"
 const handleAddStudent = () => {
-  selectedStudent.value = null // Новый студент
-  isEditMode.value = true // Режим редактирования (создание)
+  selectedStudent.value = null
+  isEditMode.value = true
   showStudentCard.value = true
 }
 
-// Обработчик создания нового студента
 const handleCreateSubmit = async (studentData: Partial<Student>) => {
   try {
     const newStudent = await studentStore.createStudent(studentData)
