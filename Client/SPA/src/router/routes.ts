@@ -15,11 +15,23 @@ const routes: RouteRecordRaw[] = [
         name: 'home'
       },
       {
-        path: '/student/:id',
-        component: () => import('pages/StudentDetailPage.vue'),
-        name: 'student-detail',
-        props: true
-      }
+        path: '/database-error',
+        name: 'DatabaseError',
+        component: () => import('pages/DatabaseErrorPage.vue'),
+        meta: {
+          title: 'Ошибка соединения с БД'
+        }
+      },
+      {
+        path: '/edit-error',
+        name: 'EditError',
+        component: () => import('pages/EditError.vue'),
+      },
+      {
+        path: '/data-error',
+        name: 'DataError',
+        component: () => import('pages/DataError.vue'),
+      },
     ]
   },
 

@@ -169,6 +169,14 @@ const onRowClick = (evt: Event, row: Student) => {
 }
 
 const onViewStudent = (student: Student) => {
+  console.log('Table: View student clicked', student)
+
+  // Проверяем, что student содержит данные
+  if (!student || Object.keys(student).length === 0) {
+    console.error('Student object is empty!')
+    return
+  }
+
   emit('view-student', student)
 }
 </script>
